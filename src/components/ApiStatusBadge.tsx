@@ -55,6 +55,9 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({ showHost = false
       ? import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`
       : '/api';
 
+  // Direct link to the live backend so anyone can inspect the raw API response.
+  const healthUrl = `${host.replace(/\/$/, '')}/health`;
+
   const styles: Record<HealthState, string> = {
     CHECKING: 'bg-slate-100 text-slate-600 border-slate-300',
     ONLINE: 'bg-emerald-50 text-emerald-800 border-emerald-300',
@@ -68,9 +71,12 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({ showHost = false
   };
 
   return (
-    <div
-      title={`${detail}\n${host}/health`}
-      className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold whitespace-nowrap shrink-0 ${styles[state]} ${className}`}
+    <a
+      href={healthUrl}
+      target="_blank"
+      rel="noreferrer noopener"
+      title={`${detail}\n${healthUrl} — click to open the live API response`}
+      className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold whitespace-nowrap shrink-0 cursor-pointer hover:shadow-2xs transition ${styles[state]} ${className}`}
     >
       {state === 'OFFLINE' ? (
         <WifiOff className="h-3 w-3" />
@@ -84,6 +90,6 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({ showHost = false
       {showHost && state === 'ONLINE' && (
         <span className="hidden xl:inline text-[9px] font-normal opacity-70">/api</span>
       )}
-    </div>
+    </a>
   );
 };
