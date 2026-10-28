@@ -31,12 +31,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     hasLiveStats ? keys.reduce((sum, key) => sum + (byStatus[key] || 0), 0) : fallback;
 
   const totalApplications = hasLiveStats ? stats!.totalApplications : 124;
-  const inProgressCount = statusCount(['IN_PROGRESS', 'UNDER_REVIEW'], 68);
+  const approvedCount = statusCount(['APPROVED'], 18);
+  const rejectedCount = statusCount(['REJECTED'], 6);
+  // Awaiting first scrutiny, or re-submission after a deficiency notice.
   const pendingReviewCount = hasLiveStats
     ? (byStatus.DEFICIENCY_NOTIFIED || 0) + (byStage.SUBMITTED || 0)
     : 32;
-  const approvedCount = statusCount(['APPROVED'], 18);
-  const rejectedCount = statusCount(['REJECTED'], 6);
+  // Everything still moving through the pipeline (keeps the donut buckets exclusive).
+  const inProgressCount = hasLiveStats
+    ? Math.max(totalApplications - approvedCount - rejectedCount - pendingReviewCount, 0)
+    : 68;
 
   // Recharts Data Transformation for Applications by Stage
   const stageData = [
