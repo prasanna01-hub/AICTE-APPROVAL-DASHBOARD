@@ -155,11 +155,19 @@ The normalised PostgreSQL schema contains 15 relational tables:
 | **Frontend (React + Vite SPA)** | Vercel | https://aicte-approval-dashboard.vercel.app |
 | **Backend (Express REST API)** | Vercel Serverless | https://aicte-approval-api.vercel.app |
 | **API health check** | — | https://aicte-approval-api.vercel.app/api/health |
+| **Dashboard KPIs (live JSON)** | — | https://aicte-approval-api.vercel.app/api/dashboard/stats |
 | **Android APK (TWA / PWA)** | Direct download | https://aicte-approval-dashboard.vercel.app/download/aicte-portal.apk |
 
 The frontend proxies every `/api/*` call to the backend through a Vercel rewrite
 (`vercel.json`), so the browser never hits CORS and the backend can be moved to Render
 later by changing **one** URL.
+
+**How to confirm the API is really connected:** the portal header shows a green
+`API LIVE` badge (polls `GET /api/health` every 30 s). It is clickable and opens the raw
+live JSON. The dashboard KPI cards, stage roadmap, bar chart and status donut are all
+computed by the backend from the shared application store
+(`server/data/applicationStore.ts`) — the same store the workflow endpoints mutate, so
+approving an application immediately changes the dashboard numbers.
 
 The Vercel frontend project is linked to this GitHub repo: **every push to `main`
 rebuilds and redeploys the site automatically.** The API is redeployed manually with the
