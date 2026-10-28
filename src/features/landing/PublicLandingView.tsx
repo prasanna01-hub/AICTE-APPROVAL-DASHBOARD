@@ -1,5 +1,6 @@
 import React from 'react';
 import { Building2, Award, GraduationCap, FileSpreadsheet, ArrowRight, ShieldCheck, ExternalLink, ChevronRight, Search, Smartphone, Download } from 'lucide-react';
+import { ApiStatusBadge } from '../../components/ApiStatusBadge';
 
 interface PublicLandingViewProps {
   onOpenLogin: () => void;
@@ -62,6 +63,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({
 
           {/* Actions & Login */}
           <div className="flex items-center space-x-3">
+            <ApiStatusBadge className="hidden sm:flex" />
             <button
               onClick={onNavigateToGovPortal}
               className="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-lg shadow-2xs transition cursor-pointer flex items-center space-x-1"

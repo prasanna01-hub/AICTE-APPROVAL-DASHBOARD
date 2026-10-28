@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserSession, RoleName, AlertRecord } from '../../types';
 import { Shield, Bell, UserCheck, Key, Building2, Globe, LayoutDashboard } from 'lucide-react';
+import { ApiStatusBadge } from '../ApiStatusBadge';
 
 interface NavbarProps {
   currentUser: UserSession;
@@ -66,6 +67,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Authority Actions */}
           <div className="flex items-center space-x-3">
             
+            {/* Live backend connectivity */}
+            <ApiStatusBadge showHost />
+
             {/* Regulatory Notifications Indicator */}
             <div className="relative">
               <button
