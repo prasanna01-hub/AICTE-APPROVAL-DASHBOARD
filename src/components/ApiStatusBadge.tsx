@@ -70,7 +70,7 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({ showHost = false
   return (
     <div
       title={`${detail}\n${host}/health`}
-      className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold ${styles[state]} ${className}`}
+      className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold whitespace-nowrap shrink-0 ${styles[state]} ${className}`}
     >
       {state === 'OFFLINE' ? (
         <WifiOff className="h-3 w-3" />

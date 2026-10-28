@@ -159,6 +159,7 @@ export interface AlertRecord {
 export interface DashboardStats {
   totalApplications: number;
   applicationsByStage: Record<string, number>;
+  applicationsByStatus?: Record<string, number>;
   complianceOverview: {
     fullyCompliantCount: number;
     deficientCount: number;

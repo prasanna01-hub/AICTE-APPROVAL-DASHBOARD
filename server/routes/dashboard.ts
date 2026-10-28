@@ -1,42 +1,41 @@
 import { Router, Request, Response } from 'express';
 import { alertEngine } from '../services/alertEngine.js';
+import { computeApplicationStats } from '../data/applicationStore.js';
 
 const router = Router();
 
 /**
  * GET /api/dashboard/stats
- * Aggregated statistics for backend state and future frontend integration
+ * Live aggregated KPIs computed from the shared application store + alert engine.
  */
 router.get('/stats', (req: Request, res: Response) => {
   const alerts = alertEngine.getAlerts();
-  const activeAlerts = alerts.filter(a => a.status === 'ACTIVE');
-  const criticalAlerts = alerts.filter(a => a.severity === 'CRITICAL' && a.status === 'ACTIVE');
+  const activeAlerts = alerts.filter((a) => a.status === 'ACTIVE');
+  const criticalAlerts = alerts.filter((a) => a.severity === 'CRITICAL' && a.status === 'ACTIVE');
+  const applicationStats = computeApplicationStats();
 
   res.json({
     success: true,
+    source: 'LIVE_BACKEND_STORE',
+    generatedAt: new Date().toISOString(),
     data: {
-      totalApplications: 3,
-      applicationsByStage: {
-        SUBMITTED: 1,
-        REGIONAL_SCRUTINY: 1,
-        EVC_INSPECTION: 1,
-        COMMITTEE_VERIFICATION: 0,
-        FINAL_APPROVAL: 0
-      },
+      totalApplications: applicationStats.totalApplications,
+      applicationsByStage: applicationStats.applicationsByStage,
+      applicationsByStatus: applicationStats.applicationsByStatus,
       complianceOverview: {
-        fullyCompliantCount: 1,
-        deficientCount: 2,
-        verifiedHandbookYear: '2024-2027'
+        fullyCompliantCount: applicationStats.applicationsByStatus.APPROVED,
+        deficientCount: applicationStats.applicationsByStatus.DEFICIENCY_NOTIFIED,
+        verifiedHandbookYear: '2024-2027',
       },
       alertsOverview: {
         totalActiveAlerts: activeAlerts.length,
-        criticalAlertsCount: criticalAlerts.length
+        criticalAlertsCount: criticalAlerts.length,
       },
       evcSchedulesOverview: {
-        totalScheduled: 1,
-        pendingPreparation: 1
-      }
-    }
+        totalScheduled: applicationStats.applicationsByStage.EVC_INSPECTION,
+        pendingPreparation: applicationStats.applicationsByStage.COMMITTEE_VERIFICATION,
+      },
+    },
   });
 });
 

@@ -16,22 +16,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   alerts,
   onSelectTab
 }) => {
+  // ---------------------------------------------------------------------------
+  // All numbers below come from GET /api/dashboard/stats (live backend store).
+  // The previous demo values are used only while stats is still null/loading.
+  // ---------------------------------------------------------------------------
+  const hasLiveStats = Boolean(stats);
+  const byStage: Record<string, number> = stats?.applicationsByStage || {};
+  const byStatus: Record<string, number> = stats?.applicationsByStatus || {};
+
+  const stageCount = (key: string, fallback: number) =>
+    hasLiveStats ? byStage[key] ?? 0 : fallback;
+
+  const statusCount = (keys: string[], fallback: number) =>
+    hasLiveStats ? keys.reduce((sum, key) => sum + (byStatus[key] || 0), 0) : fallback;
+
+  const totalApplications = hasLiveStats ? stats!.totalApplications : 124;
+  const inProgressCount = statusCount(['IN_PROGRESS', 'UNDER_REVIEW'], 68);
+  const pendingReviewCount = hasLiveStats
+    ? (byStatus.DEFICIENCY_NOTIFIED || 0) + (byStage.SUBMITTED || 0)
+    : 32;
+  const approvedCount = statusCount(['APPROVED'], 18);
+  const rejectedCount = statusCount(['REJECTED'], 6);
+
   // Recharts Data Transformation for Applications by Stage
   const stageData = [
-    { stage: 'Submitted', count: 30 },
-    { stage: 'Under Review', count: 41 },
-    { stage: 'EVC Scheduled', count: 18 },
-    { stage: 'Compliance Check', count: 22 },
-    { stage: 'Approved', count: 15 }
+    { stage: 'Submitted', count: stageCount('SUBMITTED', 30) },
+    { stage: 'Under Review', count: stageCount('REGIONAL_SCRUTINY', 41) },
+    { stage: 'EVC Scheduled', count: stageCount('EVC_INSPECTION', 18) },
+    { stage: 'Compliance Check', count: stageCount('COMMITTEE_VERIFICATION', 22) },
+    { stage: 'Approved', count: stageCount('FINAL_APPROVAL', 15) }
   ];
 
   // Recharts Data Transformation for Application Status Donut Chart
   const statusPieData = [
-    { name: 'In Progress', value: 68, color: '#0284c7' },
-    { name: 'Pending Review', value: 32, color: '#f59e0b' },
-    { name: 'Approved', value: 18, color: '#10b981' },
-    { name: 'Rejected', value: 6, color: '#ef4444' }
+    { name: 'In Progress', value: inProgressCount, color: '#0284c7' },
+    { name: 'Pending Review', value: pendingReviewCount, color: '#f59e0b' },
+    { name: 'Approved', value: approvedCount, color: '#10b981' },
+    { name: 'Rejected', value: rejectedCount, color: '#ef4444' }
   ];
+
+  const pieTotal = statusPieData.reduce((sum, entry) => sum + entry.value, 0);
+  const pct = (value: number) => (pieTotal > 0 ? Math.round((value / pieTotal) * 100) : 0);
 
   const recentApps = applications.length > 0 ? applications.slice(0, 5) : [
     { id: 1, applicationNumber: 'AP0025/001', institutionName: 'ABC Engineering College', currentStage: 'Under Review', submittedAt: '2025-05-12', status: 'In Progress' },
@@ -76,7 +101,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <FileText className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 font-mono">124</div>
+          <div className="text-2xl font-extrabold text-slate-900 font-mono">{totalApplications}</div>
         </div>
 
         {/* Card 2: In Progress */}
@@ -87,7 +112,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Clock className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-sky-700 font-mono">68</div>
+          <div className="text-2xl font-extrabold text-sky-700 font-mono">{inProgressCount}</div>
         </div>
 
         {/* Card 3: Pending Review */}
@@ -98,7 +123,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <AlertTriangle className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-amber-700 font-mono">32</div>
+          <div className="text-2xl font-extrabold text-amber-700 font-mono">{pendingReviewCount}</div>
         </div>
 
         {/* Card 4: Approved */}
@@ -109,7 +134,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-emerald-700 font-mono">18</div>
+          <div className="text-2xl font-extrabold text-emerald-700 font-mono">{approvedCount}</div>
         </div>
 
         {/* Card 5: Rejected */}
@@ -120,7 +145,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <XCircle className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-rose-700 font-mono">6</div>
+          <div className="text-2xl font-extrabold text-rose-700 font-mono">{rejectedCount}</div>
         </div>
 
       </div>
@@ -159,7 +184,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-slate-500">Document Upload & Fee Payment</p>
             <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
               <span className="text-slate-600 font-medium">Institutions:</span>
-              <span className="font-mono font-bold text-slate-900">12</span>
+              <span className="font-mono font-bold text-slate-900">{stageCount('SUBMITTED', 12)}</span>
             </div>
           </div>
 
@@ -173,7 +198,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-blue-800">Deficiency Check & Expert Review</p>
             <div className="pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
               <span className="text-blue-900 font-medium">Institutions:</span>
-              <span className="font-mono font-bold text-blue-900">41</span>
+              <span className="font-mono font-bold text-blue-900">{stageCount('REGIONAL_SCRUTINY', 41)}</span>
             </div>
           </div>
 
@@ -187,7 +212,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-amber-800">Physical & Hybrid Campus Visit</p>
             <div className="pt-2 border-t border-amber-200 flex items-center justify-between text-[11px]">
               <span className="text-amber-900 font-medium">Institutions:</span>
-              <span className="font-mono font-bold text-amber-900">18</span>
+              <span className="font-mono font-bold text-amber-900">{stageCount('EVC_INSPECTION', 18)}</span>
             </div>
           </div>
 
@@ -201,7 +226,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-sky-800">Regional Officer Review</p>
             <div className="pt-2 border-t border-sky-200 flex items-center justify-between text-[11px]">
               <span className="text-sky-900 font-medium">Institutions:</span>
-              <span className="font-mono font-bold text-sky-900">22</span>
+              <span className="font-mono font-bold text-sky-900">{stageCount('COMMITTEE_VERIFICATION', 22)}</span>
             </div>
           </div>
 
@@ -215,7 +240,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-purple-800">Compliance Appeals & Hearing</p>
             <div className="pt-2 border-t border-purple-200 flex items-center justify-between text-[11px]">
               <span className="text-purple-900 font-medium">Institutions:</span>
-              <span className="font-mono font-bold text-purple-900">15</span>
+              <span className="font-mono font-bold text-purple-900">{stageCount('APPELLATE_REVIEW', 15)}</span>
             </div>
           </div>
 
@@ -229,7 +254,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[10px] text-emerald-800">Council Approval Letter Issued</p>
             <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-[11px]">
               <span className="text-emerald-900 font-medium">Approved:</span>
-              <span className="font-mono font-bold text-emerald-900">18</span>
+              <span className="font-mono font-bold text-emerald-900">{approvedCount}</span>
             </div>
           </div>
 
@@ -239,7 +264,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="pt-3 border-t border-slate-100">
           <h3 className="text-xs font-bold text-slate-800 mb-3 flex items-center justify-between">
             <span>Current Institutional Placement Across Approval Stages</span>
-            <span className="text-[11px] text-slate-500 font-normal">Updated Live</span>
+            <span className="text-[11px] text-slate-500 font-normal">
+              {hasLiveStats ? 'Live API data' : 'Updated Live'}
+            </span>
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -248,7 +275,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
               <div className="flex items-center justify-between font-bold text-blue-900 pb-1.5 border-b border-slate-200">
                 <span>🔍 Scrutiny Committee Stage</span>
-                <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">41 Active</span>
+                <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">{stageCount('REGIONAL_SCRUTINY', 41)} Active</span>
               </div>
               <ul className="space-y-1.5 text-[11px] text-slate-700">
                 <li className="flex justify-between items-center py-1 border-b border-slate-100">
@@ -270,7 +297,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
               <div className="flex items-center justify-between font-bold text-amber-900 pb-1.5 border-b border-slate-200">
                 <span>🏛️ Expert Visit Committee (EVC)</span>
-                <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-mono">18 Scheduled</span>
+                <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-mono">{stageCount('EVC_INSPECTION', 18)} Scheduled</span>
               </div>
               <ul className="space-y-1.5 text-[11px] text-slate-700">
                 <li className="flex justify-between items-center py-1 border-b border-slate-100">
@@ -292,7 +319,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
               <div className="flex items-center justify-between font-bold text-purple-900 pb-1.5 border-b border-slate-200">
                 <span>⚖️ Standing Appellate Committee (SAC)</span>
-                <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">15 Appeals</span>
+                <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">{stageCount('APPELLATE_REVIEW', 15)} Appeals</span>
               </div>
               <ul className="space-y-1.5 text-[11px] text-slate-700">
                 <li className="flex justify-between items-center py-1 border-b border-slate-100">
@@ -361,7 +388,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-xl font-bold font-mono text-slate-900">124</span>
+              <span className="text-xl font-bold font-mono text-slate-900">{totalApplications}</span>
               <span className="text-[10px] text-slate-500 font-medium">Total</span>
             </div>
           </div>
@@ -369,19 +396,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-2 gap-2 text-[11px] font-medium pt-1">
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
-              <span className="text-slate-600">In Progress (54%)</span>
+              <span className="text-slate-600">In Progress ({pct(inProgressCount)}%)</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span className="text-slate-600">Pending (26%)</span>
+              <span className="text-slate-600">Pending ({pct(pendingReviewCount)}%)</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span className="text-slate-600">Approved (15%)</span>
+              <span className="text-slate-600">Approved ({pct(approvedCount)}%)</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              <span className="text-slate-600">Rejected (5%)</span>
+              <span className="text-slate-600">Rejected ({pct(rejectedCount)}%)</span>
             </div>
           </div>
         </div>

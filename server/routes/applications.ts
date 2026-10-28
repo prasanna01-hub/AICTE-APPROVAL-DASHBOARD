@@ -1,53 +1,9 @@
 import { Router, Response } from 'express';
 import { authenticateToken, authorizeRoles, AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import { docStorageService } from '../services/docStorageService.js';
+import { applicationsStore } from '../data/applicationStore.js';
 
 const router = Router();
-
-// In-memory mock database store for initial prototype workflow
-const applicationsStore = [
-  {
-    id: '1',
-    applicationNumber: 'APP-2026-8912',
-    institutionId: '1-109283741',
-    institutionName: 'Apex Institute of Technology & Engineering',
-    state: 'Tamil Nadu',
-    category: 'Engineering & Technology',
-    approvalType: 'Extension of Approval (EoA)',
-    academicYear: '2026-2027',
-    currentStage: 'REGIONAL_SCRUTINY', // SUBMITTED -> REGIONAL_SCRUTINY -> COMMITTEE_VERIFICATION -> APPELLATE_REVIEW -> APPROVED
-    status: 'UNDER_REVIEW',
-    deficiencyScore: 18.5,
-    predictedApprovalProb: 81.5,
-    submittedAt: '2026-10-15T09:30:00Z',
-    updatedAt: '2026-10-25T14:20:00Z',
-    assignedOfficer: 'Er. R. K. Viswanathan (RO Southern Region)',
-    stageHistory: [
-      { stage: 'SUBMITTED', status: 'COMPLETED', date: '2026-10-15T09:30:00Z', remarks: 'Application submitted by Principal with digital signature.' },
-      { stage: 'REGIONAL_SCRUTINY', status: 'IN_PROGRESS', date: '2026-10-20T11:00:00Z', remarks: 'Regional Office reviewing Land NOC and Faculty Ratio proof.' }
-    ]
-  },
-  {
-    id: '2',
-    applicationNumber: 'APP-2026-4410',
-    institutionId: '1-982736452',
-    institutionName: 'National College of Pharmacy & Research',
-    state: 'Karnataka',
-    category: 'Pharmacy',
-    approvalType: 'New Course Addition (B.Pharm Data Analytics)',
-    academicYear: '2026-2027',
-    currentStage: 'SUBMITTED',
-    status: 'IN_PROGRESS',
-    deficiencyScore: 32.0,
-    predictedApprovalProb: 68.0,
-    submittedAt: '2026-10-22T16:45:00Z',
-    updatedAt: '2026-10-22T16:45:00Z',
-    assignedOfficer: 'Pending Assignment',
-    stageHistory: [
-      { stage: 'SUBMITTED', status: 'COMPLETED', date: '2026-10-22T16:45:00Z', remarks: 'Initial application submitted.' }
-    ]
-  }
-];
 
 /**
  * GET /api/applications
