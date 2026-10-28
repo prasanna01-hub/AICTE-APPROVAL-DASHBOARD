@@ -187,20 +187,35 @@ API_PROXY_URL="https://aicte-approval-api.vercel.app" npm run build:web
 cd deploy/aicte-approval-portal && vercel deploy --prod --yes --name aicte-approval-dashboard
 ```
 
-### 6.2 Deploy the backend on Render instead
+### 6.2 Deploy BOTH services on Render (frontend + backend)
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/prasanna01-hub/AICTE-APPROVAL-DASHBOARD)
 
-`render.yaml` is a ready Render Blueprint (health check `/api/health`, `npm start`).
-Either connect the GitHub repo in the Render dashboard, or run the Dockerfile:
+`render.yaml` is a ready Render Blueprint that creates **two** services in one go:
+
+| Service | Type | URL |
+|---|---|---|
+| `aicte-approval-api` | Node web service (`npm start`, health `/api/health`) | https://aicte-approval-api.onrender.com |
+| `aicte-approval-portal` | Static site (Vite build) | https://aicte-approval-portal.onrender.com |
+
+The frontend build command reads the backend host from the blueprint
+(`AICTE_API_HOST`, taken from the API service via `fromService`) and bakes
+`https://<api-host>/api` into the bundle. The API allows all origins
+(`CORS_ORIGINS=*`), so the static site can call it directly.
+
+> Render free web services sleep after ~15 minutes of inactivity, so the very first
+> request after a pause can take ~50 seconds to wake up. The `API LIVE` badge in the
+> header shows the real state, and the dashboard numbers come from that API.
+
+Manual alternative (Docker):
 
 ```bash
 docker build -t aicte-api .
 docker run -p 3000:3000 -e CORS_ORIGINS="*" aicte-api
 ```
 
-Then point the frontend at it: `API_PROXY_URL="https://<your-service>.onrender.com" npm run build:web`
-and redeploy the frontend. No code changes required.
+Then point the frontend at it: `VITE_API_BASE_URL="https://<your-service>.onrender.com/api" npm run build:web`
+and redeploy the static site. No code changes required.
 
 ### 6.3 Android APK
 
