@@ -4,11 +4,13 @@
   "buildCommand": "npx vite build",
   "outputDirectory": "dist",
   "installCommand": "npm install --include=dev",
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|icons/|.*\\..*).*)",
+      "source": "/api/(.*)",
+      "destination": "https://aicte-approval-api.vercel.app/api/$1"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
@@ -20,6 +22,10 @@
     {
       "source": "/sw.js",
       "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }]
     },
     {
       "source": "/(.*)",
