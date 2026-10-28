@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Award, GraduationCap, FileSpreadsheet, ArrowRight, ShieldCheck, ExternalLink, ChevronRight, Search } from 'lucide-react';
+import { Building2, Award, GraduationCap, FileSpreadsheet, ArrowRight, ShieldCheck, ExternalLink, ChevronRight, Search, Smartphone, Download } from 'lucide-react';
 
 interface PublicLandingViewProps {
   onOpenLogin: () => void;
@@ -118,6 +118,15 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({
               >
                 <span>Open Official Gov Dashboard</span>
               </button>
+              <a
+                href="/download/aicte-portal.apk"
+                download="AICTE-Portal-v1.0.0.apk"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-md transition cursor-pointer flex items-center space-x-2"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Download Android App (APK)</span>
+                <Download className="w-4 h-4" />
+              </a>
             </div>
 
           </div>

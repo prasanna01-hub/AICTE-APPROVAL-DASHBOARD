@@ -56,8 +56,8 @@ const applicationsStore = [
 router.get('/', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   const user = req.user;
   
-  // Institute Admin only sees their own applications; AICTE Officers/Admins see all
-  if (user?.role === 'INSTITUTE_ADMIN') {
+  // Institution users only see their own applications; AICTE officers/admins see all
+  if (user?.role === 'INSTITUTION_USER') {
     const filtered = applicationsStore.filter(app => app.institutionId === '1-109283741');
     return res.json({ success: true, count: filtered.length, data: filtered });
   }
@@ -90,7 +90,7 @@ router.get('/:id', authenticateToken, (req: AuthenticatedRequest, res: Response)
  * POST /api/applications
  * Submit a new AICTE Approval Application
  */
-router.post('/', authenticateToken, authorizeRoles('INSTITUTE_ADMIN', 'SYSTEM_ADMIN'), (req: AuthenticatedRequest, res: Response) => {
+router.post('/', authenticateToken, authorizeRoles('INSTITUTION_USER', 'ADMINISTRATOR'), (req: AuthenticatedRequest, res: Response) => {
   const { institutionName, category, approvalType, academicYear, totalIntake, totalFaculty } = req.body;
 
   const newApp = {
@@ -127,7 +127,7 @@ router.post('/', authenticateToken, authorizeRoles('INSTITUTE_ADMIN', 'SYSTEM_AD
  * PATCH /api/applications/:id/stage
  * Advance workflow stage (Role-restricted to AICTE Regional Officers and Scrutiny Committee)
  */
-router.patch('/:id/stage', authenticateToken, authorizeRoles('AICTE_REGIONAL_OFFICER', 'SCRUTINY_COMMITTEE', 'SYSTEM_ADMIN'), (req: AuthenticatedRequest, res: Response) => {
+router.patch('/:id/stage', authenticateToken, authorizeRoles('REVIEWING_OFFICIAL', 'ADMINISTRATOR'), (req: AuthenticatedRequest, res: Response) => {
   const { nextStage, remarks, status } = req.body;
   const appIndex = applicationsStore.findIndex(a => a.id === req.params.id || a.applicationNumber === req.params.id);
 

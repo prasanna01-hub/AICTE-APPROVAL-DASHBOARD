@@ -145,3 +145,85 @@ The normalised PostgreSQL schema contains 15 relational tables:
 6. **Execute Automated Integration Tests**:
    Open browser or Postman to:
    `http://localhost:3000/api/tests/run`
+
+---
+
+## 6. Live Deployment (Production)
+
+| Component | Platform | Live URL |
+|-----------|----------|----------|
+| **Frontend (React + Vite SPA)** | Vercel | https://aicte-approval-dashboard.vercel.app |
+| **Backend (Express REST API)** | Vercel Serverless | https://aicte-approval-api.vercel.app |
+| **API health check** | — | https://aicte-approval-api.vercel.app/api/health |
+| **Android APK (TWA / PWA)** | Direct download | https://aicte-approval-dashboard.vercel.app/download/aicte-portal.apk |
+
+The frontend proxies every `/api/*` call to the backend through a Vercel rewrite
+(`deploy/aicte-approval-portal/vercel.json`), so the browser never hits CORS and the
+backend can be moved to Render later by changing **one** URL.
+
+### 6.1 Build & redeploy
+
+```bash
+npm install
+
+# 1. Backend API (serverless bundle)
+npm run build:api
+cd deploy/aicte-approval-api && vercel deploy --prod --yes --name aicte-approval-api && cd ../..
+
+# 2. Frontend (static bundle, proxied to the API)
+API_PROXY_URL="https://aicte-approval-api.vercel.app" npm run build:web
+cd deploy/aicte-approval-portal && vercel deploy --prod --yes --name aicte-approval-dashboard
+```
+
+### 6.2 Deploy the backend on Render instead
+
+`render.yaml` is a ready Render Blueprint (health check `/api/health`, `npm start`).
+Either connect the GitHub repo in the Render dashboard, or run the Dockerfile:
+
+```bash
+docker build -t aicte-api .
+docker run -p 3000:3000 -e CORS_ORIGINS="*" aicte-api
+```
+
+Then point the frontend at it: `API_PROXY_URL="https://<your-service>.onrender.com" npm run build:web`
+and redeploy the frontend. No code changes required.
+
+### 6.3 Android APK
+
+- Package id: `com.aicte.approvalportal` — minSdk 24, targetSdk 36, version 1.0.0 (code 3)
+- Type: **Trusted Web Activity** (Bubblewrap) — fullscreen wrapper around the live site
+- Keystore: `mobile/android.keystore` (alias `android`, store/key password `aictePortal2026`)
+- Signing certificate SHA-256:
+  `81:6E:F8:FC:6C:0E:0E:57:C5:69:D3:95:2A:0B:FA:74:AF:87:A8:F7:A1:A0:28:E6:A7:DC:D0:FC:66:3E:FE:40`
+- Digital Asset Links: `https://aicte-approval-dashboard.vercel.app/.well-known/assetlinks.json`
+  (already published, so the app opens without a browser address bar)
+
+Rebuild the APK after a new web release:
+
+```bash
+cd mobile
+export JAVA_HOME="C:\Program Files\Android\Android Studio1\jbr"
+export ANDROID_HOME="$LOCALAPPDATA/Android/Sdk"
+export BUBBLEWRAP_KEYSTORE_PASSWORD=aictePortal2026
+export BUBBLEWRAP_KEY_PASSWORD=aictePortal2026
+npx @bubblewrap/cli update     # regenerate the Android project from twa-manifest.json
+npx @bubblewrap/cli build --skipPwaValidation
+# then sign (bubblewrap's apksigner step breaks on JDK paths containing spaces):
+java -jar "$ANDROID_HOME/build-tools/36.1.0/lib/apksigner.jar" sign \
+  --ks android.keystore --ks-key-alias android \
+  --ks-pass pass:aictePortal2026 --key-pass pass:aictePortal2026 \
+  --out AICTE-Portal-v1.0.0.apk app-release-unsigned-aligned.apk
+```
+
+### 6.4 Demo accounts (prototype RBAC)
+
+| Role | Username | Sees |
+|------|----------|------|
+| Administrator | `admin_aicte` | everything |
+| Institution | `principal_apex` | own applications only |
+| Reviewing Official | `ro_viswanathan` | all, can advance workflow stages |
+| EVC Coordinator | `evc_coord_ananya` | EVC scheduling |
+
+### 6.5 API smoke test
+
+`GET /api/tests/run` executes the built-in 9-test backend suite and returns `allPassed: true`.

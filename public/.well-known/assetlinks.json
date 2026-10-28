@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aicte.approvalportal",
+      "sha256_cert_fingerprints": [
+        "81:6E:F8:FC:6C:0E:0E:57:C5:69:D3:95:2A:0B:FA:74:AF:87:A8:F7:A1:A0:28:E6:A7:DC:D0:FC:66:3E:FE:40"
+      ]
+    }
+  }
+]

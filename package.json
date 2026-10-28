@@ -1,14 +1,17 @@
 {
-  "name": "react-example",
+  "name": "aicte-approval-compliance-portal",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node dist/server.js",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-server.mjs",
+    "build:web": "node scripts/build-web.mjs",
+    "build:api": "node scripts/build-api.mjs",
+    "icons": "node scripts/gen-icons.mjs",
     "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
+    "clean": "node -e \"const{rmSync}=require('fs');['dist','deploy','server.js'].forEach(p=>rmSync(p,{recursive:true,force:true}))\"",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,7 +32,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2",

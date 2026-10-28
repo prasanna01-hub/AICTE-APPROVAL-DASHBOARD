@@ -1,0 +1,24 @@
+# Render Blueprint — one-click backend deployment
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: aicte-approval-api
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: APP_URL
+        value: https://aicte-approval-portal.vercel.app

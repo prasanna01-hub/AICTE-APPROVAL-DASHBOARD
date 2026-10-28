@@ -7,7 +7,7 @@ const router = Router();
  * POST /api/ai-service/predict
  * Microservice call connecting Express backend with Python FastAPI Scikit-Learn prediction model.
  */
-router.post('/predict', async (req: Request, res: Response) => {
+router.post(['/predict', '/predict-delay'], async (req: Request, res: Response) => {
   const { totalIntake, facultyCount, totalLandAcres, cadLabsCount, fireSafetyCert, buildingSafetyCert } = req.body;
 
   const payload = {
