@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AICTE Approval & Compliance Automation Portal</title>
+    <meta name="description" content="Integrated AICTE Approval Workflow Automation, Compliance Monitoring, and Alert Management System with AI prediction and RBAC." />
+    <meta property="og:title" content="AICTE Approval & Compliance Automation Portal" />
+    <meta property="og:description" content="Integrated AICTE Approval Workflow Automation, Compliance Monitoring, and Alert Management System with AI prediction and RBAC." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      (function() {
+        try {
+          var _originalFetch = window.fetch;
+          var _currentFetch = _originalFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return _currentFetch || _originalFetch;
+            },
+            set: function(fn) {
+              _currentFetch = fn;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // fetch descriptor patch ignored if restricted
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

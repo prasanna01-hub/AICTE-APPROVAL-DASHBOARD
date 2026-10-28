@@ -1,0 +1,6 @@
+{
+  "name": "AICTE Approval & Compliance Automation Portal",
+  "description": "Integrated AICTE Approval Workflow Automation, Compliance Monitoring, and Alert Management System with AI prediction and RBAC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
