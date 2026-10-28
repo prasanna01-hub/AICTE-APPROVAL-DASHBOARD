@@ -158,8 +158,12 @@ The normalised PostgreSQL schema contains 15 relational tables:
 | **Android APK (TWA / PWA)** | Direct download | https://aicte-approval-dashboard.vercel.app/download/aicte-portal.apk |
 
 The frontend proxies every `/api/*` call to the backend through a Vercel rewrite
-(`deploy/aicte-approval-portal/vercel.json`), so the browser never hits CORS and the
-backend can be moved to Render later by changing **one** URL.
+(`vercel.json`), so the browser never hits CORS and the backend can be moved to Render
+later by changing **one** URL.
+
+The Vercel frontend project is linked to this GitHub repo: **every push to `main`
+rebuilds and redeploys the site automatically.** The API is redeployed manually with the
+two commands below (its bundle lives in the git-ignored `deploy/` folder).
 
 ### 6.1 Build & redeploy
 
@@ -176,6 +180,8 @@ cd deploy/aicte-approval-portal && vercel deploy --prod --yes --name aicte-appro
 ```
 
 ### 6.2 Deploy the backend on Render instead
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/prasanna01-hub/AICTE-APPROVAL-DASHBOARD)
 
 `render.yaml` is a ready Render Blueprint (health check `/api/health`, `npm start`).
 Either connect the GitHub repo in the Render dashboard, or run the Dockerfile:
